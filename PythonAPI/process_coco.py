@@ -72,8 +72,9 @@ def process_coco(coco, img_path, out_img_path, out_label_path, out_list):
                         found = True
                         break
 
-                if found:
-                    bbox = [int(xx) for xx in ann['bbox']]
+                bbox = [int(xx) for xx in ann['bbox']]
+
+                if found and (bbox[2] >= 10) and (bbox[3] >= 10):
                     msk = coco.annToMask(ann) * 255
 
                     part = orig_frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]]
@@ -101,7 +102,7 @@ def process_coco(coco, img_path, out_img_path, out_label_path, out_list):
                     #cv2.imshow('grab_msk', grab_msk * 127)
                     #cv2.imshow('part', part)
 
-                    if np.any(grab_msk == 1):
+                    if (np.count_nonzero(grab_msk == 1) > 10) and (np.count_nonzero(grab_msk == 0) > 10) and (np.count_nonzero(grab_msk == 2) > 10):
                         bgdModel = np.zeros((1,65),np.float64)
                         fgdModel = np.zeros((1,65),np.float64)
                         cv2.grabCut(part, grab_msk, None, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_MASK)
